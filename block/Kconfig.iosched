@@ -14,7 +14,8 @@ config MQ_IOSCHED_KYBER
 	default y
 	---help---
 	  The Kyber I/O scheduler is a low-overhead scheduler suitable for
-	  multiqueue and other fast devices. Given target latencies for reads and
+	  multiqueue and other fast devices.
+	  Given target latencies for reads and
 	  synchronous writes, it will self-tune queue depths to achieve that
 	  goal.
 
@@ -22,11 +23,14 @@ config IOSCHED_BFQ
 	tristate "BFQ I/O scheduler"
 	default n
 	---help---
-	BFQ I/O scheduler for BLK-MQ. BFQ distributes the bandwidth of
+	BFQ I/O scheduler for BLK-MQ.
+	BFQ distributes the bandwidth of
 	of the device among all processes according to their weights,
-	regardless of the device parameters and with any workload. It
+	regardless of the device parameters and with any workload.
+	It
 	also guarantees a low latency to interactive and soft
-	real-time applications.  Details in
+	real-time applications.
+	Details in
 	Documentation/block/bfq-iosched.txt
 
 config BFQ_GROUP_IOSCHED
@@ -34,10 +38,24 @@ config BFQ_GROUP_IOSCHED
        depends on IOSCHED_BFQ && BLK_CGROUP
        default n
        ---help---
-
        Enable hierarchical scheduling in BFQ, using the blkio
        (cgroups-v1) or io (cgroups-v2) controller.
 
+config IOSCHED_ANXIETY
+	tristate "Anxiety I/O scheduler"
+	default n
+	---help---
+	  The Anxiety I/O scheduler prioritizes latency over everything
+	  else.
+	  When a request comes in, it will use a lighweight
+	  selection algorithm to swiftly process the current pending task.
+
+config IOSCHED_ZEN
+	tristate "Zen I/O scheduler"
+	default n
+	---help---
+	  The Zen I/O scheduler is an optimization of the No-op and Deadline
+	  schedulers, based on historical principles of the Zen kernel.
 
 choice
 	prompt "Default mq I/O scheduler"
@@ -57,7 +75,23 @@ choice
 		bool "BFQ"
 		depends on IOSCHED_BFQ
 
+	config DEFAULT_ANXIETY
+		bool "Anxiety"
+		depends on IOSCHED_ANXIETY
+
+	config DEFAULT_ZEN
+		bool "ZEN"
+		depends on IOSCHED_ZEN
+
 endchoice
+
+config DEFAULT_IOSCHED
+	string
+	default "mq-deadline" if MQ_DEADLINE_DEFAULT
+	default "kyber" if MQ_KYBER_DEFAULT
+	default "bfq" if BFQ_DEFAULT
+	default "anxiety" if DEFAULT_ANXIETY
+	default "zen" if DEFAULT_ZEN
 
 endmenu
 
