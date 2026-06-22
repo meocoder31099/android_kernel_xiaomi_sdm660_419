@@ -26,7 +26,7 @@ on:
           - lengkap
   push:
     branches:
-      - android-4.19-stable
+      - cp-st
 
 env:
   KERNEL_DIR: ${{ github.workspace }}/kernel
@@ -50,7 +50,7 @@ jobs:
       #    yang memicu workflow ini, dan shallow clone secara default.
       # ------------------------------------------------------------------
       - name: Checkout kernel source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: kernel
 
@@ -106,7 +106,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Cache AOSP Clang toolchain
         id: cache-toolchain
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ${{ env.TC_DIR }}
           key: aosp-clang-${{ env.AOSP_CLANG_TAG }}
@@ -125,7 +125,7 @@ jobs:
       # 6. CACHE CCACHE (mempercepat rebuild berikutnya)
       # ------------------------------------------------------------------
       - name: Cache ccache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.ccache
           key: ccache-${{ github.event.inputs.defconfig || 'vendor/whyred-perf_defconfig' }}-${{ github.run_id }}
@@ -232,26 +232,41 @@ jobs:
           fi
 
       # ------------------------------------------------------------------
+      # 9.5. SIAPKAN NAMA ARTIFACT
+      #      Format: kernel-4.19-{branch}-{run_number}-{tanggal}
+      #      Contoh: kernel-4.19-cp-st-7-22062026
+      #      Slash di nama branch (mis. release/v1) diganti jadi "-" karena
+      #      nama artifact tidak boleh mengandung "/".
+      # ------------------------------------------------------------------
+      - name: Siapkan nama artifact
+        id: meta
+        run: |
+          BRANCH_NAME="${{ github.ref_name }}"
+          BRANCH_SAFE="${BRANCH_NAME//\//-}"
+          TANGGAL=$(date +'%d%m%Y')
+          echo "artifact_name=kernel-4.19-${BRANCH_SAFE}-${{ github.run_number }}-${TANGGAL}" >> "$GITHUB_OUTPUT"
+
+      # ------------------------------------------------------------------
       # 10. UPLOAD ARTIFACT
-      #     "ringkas"  -> seluruh isi out/arch/arm64/boot/ (Image, Image.gz,
+      #     "ringkas"  -> semua file hasil build atau semua yang ada di out/arch/arm64/boot/ (Image, Image.gz,
       #                   Image.gz-dtb, dan folder dts/.../*.dtb di dalamnya)
       #     "lengkap"  -> seluruh isi out/ seperti hasil build local (vmlinux,
       #                   System.map, semua .o, dll). Bisa beberapa GB & lebih lama diupload.
       # ------------------------------------------------------------------
       - name: Upload kernel image (ringkas - folder boot)
         if: ${{ (github.event.inputs.artifact_scope || 'ringkas') == 'ringkas' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: San-Kernel-whyred-boot-${{ github.run_number }}
+          name: ${{ steps.meta.outputs.artifact_name }}
           path: ${{ env.OUT_DIR }}/arch/arm64/boot
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Upload kernel build (lengkap, seperti folder out/ local)
+      - name: Upload kernel build (lengkap, seluruh folder out / seperti build local)
         if: ${{ github.event.inputs.artifact_scope == 'lengkap' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
-          name: San-Kernel-whyred-out-${{ github.run_number }}
+          name: ${{ steps.meta.outputs.artifact_name }}-out
           path: ${{ env.OUT_DIR }}
           if-no-files-found: warn
           retention-days: 7
