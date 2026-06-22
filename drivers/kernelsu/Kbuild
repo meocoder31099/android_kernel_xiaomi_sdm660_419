@@ -72,8 +72,8 @@ KSU_SRC := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 # KSU_COMMIT_SHA  := $(shell cd $(KSU_SRC); $(GIT_BIN) rev-parse --short=8 HEAD 2>/dev/null || echo "unknown")
 # KSU_BRANCH_NAME := $(shell cd $(KSU_SRC); $(GIT_BIN) branch --show-current 2>/dev/null || echo "unknown")
 
-KSU_VERSION := 34781
-KSU_TAG_NAME := v4.1.0
+KSU_VERSION := 40708
+KSU_TAG_NAME := v4.1.2
 KSU_COMMIT_SHA := d63ebb67
 KSU_BRANCH_NAME := main
 
