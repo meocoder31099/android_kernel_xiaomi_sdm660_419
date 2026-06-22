@@ -25,6 +25,14 @@
 #define EXPECTED_SIZE_KOWX712 0x375
 #define EXPECTED_HASH_KOWX712 "484fcba6e6c43b1fb09700633bf2fb4758f13cb0b2f4457b80d075084b26c588"
 
+// rifsxd/KernelSU-Next
+#define EXPECTED_SIZE_KSUN 0x3e6
+#define EXPECTED_HASH_KSUN "79e590113c4c4c0c222978e413a5faa801666957b1212a328e46c00c69821bf7"
+
+// kamisu
+#define EXPECTED_SIZE_KAMI 0x2e8
+#define EXPECTED_HASH_KAMI "13c415105fad7b798e5584798d82ea334729f0c24de7b9d4cd2f2e1b062eb566"
+
 typedef struct {
     unsigned size;
     const char *sha256;
