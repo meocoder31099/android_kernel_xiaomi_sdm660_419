@@ -82,10 +82,10 @@ jobs:
           fi
 
           echo "Menambahkan swap ${SWAP_SIZE} (mode LTO: ${LTO_MODE})..."
-          sudo fallocate -l "$SWAP_SIZE" /swapfile
-          sudo chmod 600 /swapfile
-          sudo mkswap /swapfile
-          sudo swapon /swapfile
+          sudo fallocate -l "$SWAP_SIZE" /swapfile_ci
+          sudo chmod 600 /swapfile_ci
+          sudo mkswap /swapfile_ci
+          sudo swapon /swapfile_ci
           free -h
 
       # ------------------------------------------------------------------
@@ -115,8 +115,11 @@ jobs:
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
           mkdir -p "$TC_DIR"
-          git clone --depth=1 -b "$AOSP_CLANG_TAG" \
-            "$AOSP_CLANG_URL" "$TC_DIR"
+          curl -L --fail \
+            "${AOSP_CLANG_URL}/+archive/refs/heads/main/clang-${AOSP_CLANG_TAG}.tar.gz" \
+            -o /tmp/clang.tar.gz
+          tar -xzf /tmp/clang.tar.gz -C "$TC_DIR"
+          rm -f /tmp/clang.tar.gz
 
       # ------------------------------------------------------------------
       # 6. CACHE CCACHE (mempercepat rebuild berikutnya)
@@ -256,7 +259,7 @@ jobs:
       # ------------------------------------------------------------------
       # 11. STEP SUMMARY
       #     Tampilkan ringkasan build (waktu, defconfig, LTO) langsung di
-      #     halaman run GitHub Actions, tanpa perlu buka log mentah.
+      #     halaman run GitHub Actions
       # ------------------------------------------------------------------
       - name: Build summary
         if: always()
