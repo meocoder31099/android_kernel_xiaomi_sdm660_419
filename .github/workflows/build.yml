@@ -6,7 +6,7 @@ on:
       defconfig:
         description: 'Defconfig yang dipakai'
         required: false
-        default: 'vendor/whyred-perf_defconfig'
+        default: 'vendor/lavender-perf_defconfig'
       lto_mode:
         description: 'Mode LTO (thin/full/none)'
         required: false
@@ -128,9 +128,9 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ~/.ccache
-          key: ccache-${{ github.event.inputs.defconfig || 'vendor/whyred-perf_defconfig' }}-${{ github.run_id }}
+          key: ccache-${{ github.event.inputs.defconfig || 'vendor/lavender-perf_defconfig' }}-${{ github.run_id }}
           restore-keys: |
-            ccache-${{ github.event.inputs.defconfig || 'vendor/whyred-perf_defconfig' }}-
+            ccache-${{ github.event.inputs.defconfig || 'vendor/lavender-perf_defconfig' }}-
 
       - name: Setup ccache
         run: |
@@ -179,7 +179,7 @@ jobs:
           cd "$KERNEL_DIR"
           mkdir -p "$OUT_DIR"
 
-          DEFCONFIG="${{ github.event.inputs.defconfig || 'vendor/whyred-perf_defconfig' }}"
+          DEFCONFIG="${{ github.event.inputs.defconfig || 'vendor/lavender-perf_defconfig' }}"
           LTO_MODE="${{ github.event.inputs.lto_mode || 'thin' }}"
 
           CUSTOM_CFLAGS="-march=armv8-a -mno-outline"
